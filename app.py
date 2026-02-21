@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from openai import OpenAI # Import the OpenAI class
+from google.colab import userdata # Import userdata to access Colab secrets
 
 st.title('AI Career Roadmap Generator')
 
@@ -39,10 +40,11 @@ if generate_button_clicked:
     """
 
     # Initialize OpenAI client
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
+    # Retrieve API key from Colab's Secrets Manager
+    openai_api_key = userdata.get("OPENAI_API_KEY")
     if not openai_api_key:
-        st.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
-        print("Error: OPENAI_API_KEY environment variable is not set. Please set it before running this cell if you intend to generate a roadmap.")
+        st.error("OpenAI API key not found. Please set the OPENAI_API_KEY in Colab's Secrets Manager.")
+        print("Error: OPENAI_API_KEY not found in Colab Secrets Manager. Please set it.")
     else:
         client = OpenAI(api_key=openai_api_key)
 
@@ -51,7 +53,7 @@ if generate_button_clicked:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo", # Or "gpt-4" if available and preferred
                 messages=[
-                    {"role": "system", "content": "You are a helpful AI career coach that provides structured advice."},
+                    {"role": "system", "content": "You are a helpful AI career coach that provides structured advice."}, 
                     {"role": "user", "content": prompt}
                 ]
             )
@@ -102,7 +104,7 @@ if generate_button_clicked:
 
         except Exception as e:
             st.error(f"An error occurred while generating the roadmap: {e}")
-            st.info("Please ensure your OpenAI API key is correctly set.")
+            st.info("Please ensure your OpenAI API key is correctly set in Colab's Secrets Manager.")
 
 else:
     st.write("Enter your details and click 'Generate Roadmap' to get started!")
