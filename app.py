@@ -39,7 +39,7 @@ if generate_button_clicked:
     """
 
     # Initialize OpenAI client
-    openai_api_key = os.environ.get("AIzaSyCobo49evfptqhMlXGWjFZyMVDvbRaN5tw")
+    openai_api_key = os.environ.get("OPENAI_API_KEY")
     if not openai_api_key:
         st.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
         print("Error: OPENAI_API_KEY environment variable is not set. Please set it before running this cell if you intend to generate a roadmap.")
