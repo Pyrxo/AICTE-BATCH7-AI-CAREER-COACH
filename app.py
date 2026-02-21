@@ -1,7 +1,13 @@
 import streamlit as st
 import os
 from openai import OpenAI # Import the OpenAI class
-from google.colab import userdata # Import userdata to access Colab secrets
+
+# Conditionally import userdata from google.colab based on environment
+try:
+    from google.colab import userdata # Import userdata to access Colab secrets
+    IS_COLAB = True
+except ImportError:
+    IS_COLAB = False
 
 st.title('AI Career Roadmap Generator')
 
@@ -40,12 +46,20 @@ if generate_button_clicked:
     """
 
     # Initialize OpenAI client
-    # Retrieve API key from Colab's Secrets Manager
-    openai_api_key = userdata.get("OPENAI_API_KEY")
-    if not openai_api_key:
-        st.error("OpenAI API key not found. Please set the OPENAI_API_KEY in Colab's Secrets Manager.")
-        print("Error: OPENAI_API_KEY not found in Colab Secrets Manager. Please set it.")
+    # Retrieve API key from Colab's Secrets Manager if in Colab, else from environment variables
+    openai_api_key = None
+    if IS_COLAB:
+        openai_api_key = userdata.get("OPENAI_API_KEY")
+        if not openai_api_key:
+            st.error("OpenAI API key not found. Please set the OPENAI_API_KEY in Colab's Secrets Manager.")
+            print("Error: OPENAI_API_KEY not found in Colab Secrets Manager. Please set it.")
     else:
+        openai_api_key = os.environ.get("OPENAI_API_KEY")
+        if not openai_api_key:
+            st.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
+            print("Error: OPENAI_API_KEY environment variable not set. Please set it before running this app.")
+
+    if openai_api_key:
         client = OpenAI(api_key=openai_api_key)
 
         try:
@@ -104,7 +118,7 @@ if generate_button_clicked:
 
         except Exception as e:
             st.error(f"An error occurred while generating the roadmap: {e}")
-            st.info("Please ensure your OpenAI API key is correctly set in Colab's Secrets Manager.")
+            st.info("Please ensure your OpenAI API key is correctly set in Colab's Secrets Manager or as an environment variable.")
 
 else:
     st.write("Enter your details and click 'Generate Roadmap' to get started!")
